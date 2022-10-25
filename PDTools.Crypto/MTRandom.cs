@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using PDTools.PS2Math;
 
 namespace PDTools.Crypto
 {
@@ -52,7 +53,7 @@ namespace PDTools.Crypto
         public float getFloat()
         {
             uint val = (uint)getInt32();
-            return val * (1.0f / uint.MaxValue);
+            return PS2FPU.pcsx2_mul(val, 1.0f / uint.MaxValue);
         }
 
         private static ulong shift()

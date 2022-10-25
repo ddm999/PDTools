@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Numerics;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
+using PDTools.PS2Math;
 
 namespace PDTools.Crypto
 {
@@ -233,13 +234,8 @@ namespace PDTools.Crypto
             {
                 for (var i = size - 1; i > 0; i--)
                 {
-                    /* ON PCSX2 it was not matching shuffled values due to a rounding Error - 623.00 something instead of 622.99999934434891
-                     * Enough to cause an invalid bit
-                     * 
-                     * Don't know if it's a difference between rounding with floats in C++ vs C#
-                     * But use double instead */
                     float s = randomizer.getFloat();
-                    temp[i - 1] = (short)(double)(s * (double)(i + 1));
+                    temp[i - 1] = (short)PS2FPU.pcsx2_mul(s, i + 1);
                 }
             }
 
@@ -261,7 +257,7 @@ namespace PDTools.Crypto
             Action<Memory<byte>, int, int> shuffler)
         {
             for (var i = size - 1; i > 0; i--)
-                shuffler(buffer, i, (int)((double)randomizer.getFloat() * (i + 1))); // Same thing here
+                shuffler(buffer, i, (int)PS2FPU.pcsx2_mul(randomizer.getFloat(), i + 1));
         }
 
 
