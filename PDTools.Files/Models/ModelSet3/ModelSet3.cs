@@ -394,7 +394,7 @@ namespace PDTools.Files.Models.ModelSet3
         /// <returns></returns>
         /// <exception cref="InvalidOperationException"></exception>
         /// <exception cref="NotSupportedException"></exception>
-        public Vector3[] GetVerticesOfMesh(ushort meshIndex)
+        public Vector3[]? GetVerticesOfMesh(ushort meshIndex)
         {
             if (meshIndex == -1)
                 throw new InvalidOperationException("Mesh Index was -1.");
@@ -448,7 +448,7 @@ namespace PDTools.Files.Models.ModelSet3
             
         }
 
-        public List<Tri> GetTrisOfMesh(ushort meshIndex)
+        public List<Tri>? GetTrisOfMesh(ushort meshIndex)
         {
             MDL3Mesh mesh = Meshes[meshIndex];
             var list = new List<Tri>();
@@ -499,7 +499,7 @@ namespace PDTools.Files.Models.ModelSet3
             return list;
         }
 
-        public Vector2[] GetUVsOfMesh(ushort meshIndex)
+        public Vector2[]? GetUVsOfMesh(ushort meshIndex)
         {
             var mesh = Meshes[meshIndex];
             MDL3FlexibleVertexDefinition fvfDef = FlexibleVertexFormats[mesh.FVFIndex];
@@ -523,7 +523,7 @@ namespace PDTools.Files.Models.ModelSet3
             {
                 // Try shapestream
                 if (!ShapeStream.Meshes.ContainsKey(meshIndex))
-                    return arr;
+                    return null;
                 var ssMesh = ShapeStream.Meshes[meshIndex];
                 Span<byte> buffer = new byte[field.ArrayIndex == 0 ? fvfDef.VertexSize : fvfDef.ArrayDefinition.VertexSize];
                 for (int i = 0; i < mesh.VertexCount; i++)
@@ -534,6 +534,25 @@ namespace PDTools.Files.Models.ModelSet3
             }
 
             return arr;
+        }
+
+        public Vector3[]? GetBBoxOfMesh(ushort meshIndex)
+        {
+            var mesh = Meshes[meshIndex];
+            if (mesh.BBox == null && ShapeStream != null)
+            {
+                // Try shapestream
+                if (!ShapeStream.Meshes.ContainsKey(meshIndex))
+                    return null;
+                var ssMesh = ShapeStream.Meshes[meshIndex];
+                var chunk = ssMesh.ShapeStreamChunk;
+                var baseOffset = ssMesh.InfoMeshEntry.OffsetWithinShapeStream;
+                chunk.Stream.Position = baseOffset + ssMesh.BBoxOffset;
+                mesh.BBox = new Vector3[8];
+                for (var i = 0; i < 8; i++)
+                    mesh.BBox[i] = new Vector3(chunk.Stream.ReadSingle(), chunk.Stream.ReadSingle(), chunk.Stream.ReadSingle());
+            }
+            return mesh.BBox;
         }
 
 

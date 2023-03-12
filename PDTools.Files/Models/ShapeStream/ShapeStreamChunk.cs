@@ -46,7 +46,7 @@ namespace PDTools.Files.Models.ShapeStream
                 ssChunk.Stream.Position += 0x8;
                 mesh.VerticesOffset = ssChunk.Stream.ReadUInt32();
                 mesh.TriOffset = ssChunk.Stream.ReadUInt32();
-                ssChunk.Stream.Position += 0x8;
+                ssChunk.Stream.Position += 0x4;
                 mesh.BBoxOffset = ssChunk.Stream.ReadUInt32();
 
                 meshes.Add(entry.MeshIndex, mesh);
