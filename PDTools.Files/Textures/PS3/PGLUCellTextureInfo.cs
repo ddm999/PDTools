@@ -249,8 +249,15 @@ public class PGLUCellTextureInfo : PGLUTextureInfo
         ImageId = bs.ReadUInt32();
         bs.ReadUInt32();
         uint imageNameOffset = bs.ReadUInt32();
-        bs.Position = imageNameOffset - basePos;
-        SourceFileName = bs.ReadString(StringCoding.ZeroTerminated);
+        if (imageNameOffset == 0)
+        {
+            SourceFileName = "";
+        }
+        else
+        {
+            bs.Position = imageNameOffset - basePos;
+            SourceFileName = bs.ReadString(StringCoding.ZeroTerminated);
+        }
     }
 
     internal void CreateDDSData(byte[] imageData, Stream outStream)
