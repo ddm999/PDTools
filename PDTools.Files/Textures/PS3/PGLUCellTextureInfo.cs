@@ -343,16 +343,12 @@ public class PGLUCellTextureInfo : PGLUTextureInfo
             imageData = newImageData;
         }
 
-        // Swap channels for DDS
+        // Remap channels from PS3 big-endian ARGB [A,R,G,B] to DXGI R8G8B8A8 [R,G,B,A]
+        // InX enum: A=0, R=1, G=2, B=3 — used directly as byte offsets into the original ARGB layout
         if (format == CELL_GCM_TEXTURE_FORMAT.CELL_GCM_TEXTURE_A8R8G8B8 || format == CELL_GCM_TEXTURE_FORMAT.CELL_GCM_TEXTURE_D8R8G8B8)
         {
-            var sp = MemoryMarshal.Cast<byte, uint>(imageData);
             for (var i = 0; i < Width * Height * 4; i += 4)
             {
-                // Swap endian first
-                sp[i / 4] = BinaryPrimitives.ReverseEndianness(sp[i / 4]);
-
-                // Remap channels
                 byte r = imageData[i + (byte)InR];
                 byte g = imageData[i + (byte)InG];
                 byte b = imageData[i + (byte)InB];
